@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Circuito Cerrado</title>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@500&family=Work+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --papel:#F1F4F1; --panel:#FFFFFF; --panel-2:#F7F9F7;
+    --tinta:#12263A; --tinta-suave:#516A7D; --linea:#D2DBD6;
+    --cobre:#B3612F; --cobre-suave:#F0E0D4;
+    --placa:#1B7A5A; --placa-suave:#DCEFE6;
+    --alerta:#B33A2B; --alerta-suave:#F6DFDB;
+    --sombra:0 1px 0 rgba(18,38,58,.06), 0 8px 24px -16px rgba(18,38,58,.5);
+    --r:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --papel:#0C1A23; --panel:#122733; --panel-2:#16303E; --tinta:#E7EFF1;
+      --tinta-suave:#93AAB6; --linea:#22404F; --cobre:#E08D52; --cobre-suave:#3A2718;
+      --placa:#48BC8F; --placa-suave:#11332A; --alerta:#E4796A; --alerta-suave:#3A1F1B;
+      --sombra:0 1px 0 rgba(0,0,0,.3), 0 10px 26px -18px #000;
+    }
+  }
+  :root[data-theme="dark"]{
+    --papel:#0C1A23; --panel:#122733; --panel-2:#16303E; --tinta:#E7EFF1;
+    --tinta-suave:#93AAB6; --linea:#22404F; --cobre:#E08D52; --cobre-suave:#3A2718;
+    --placa:#48BC8F; --placa-suave:#11332A; --alerta:#E4796A; --alerta-suave:#3A1F1B;
+    --sombra:0 1px 0 rgba(0,0,0,.3), 0 10px 26px -18px #000;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--papel); color:var(--tinta);
+    font-family:"Work Sans", ui-sans-serif, system-ui, sans-serif; font-size:16px; line-height:1.55;
+    background-image:linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size:28px 28px; background-position:-1px -1px;
+  }
+  body::before{content:""; position:fixed; inset:0; pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 0%, transparent 35%, var(--papel) 100%)}
+  .wrap{position:relative; max-width:960px; margin:0 auto; padding-inline:16px; padding-block:0 40px}
+
+  .topbar{position:sticky; top:env(safe-area-inset-top, 0px); z-index:20;
+    background:var(--panel); border:1px solid var(--linea); border-radius:var(--r);
+    box-shadow:var(--sombra); margin-block:14px 18px; padding:10px 14px;
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px}
+  .marca{font-family:"Chakra Petch",sans-serif; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; font-size:15px; display:flex; align-items:center; gap:8px}
+  .marca .led{width:9px; height:9px; border-radius:50%; background:var(--alerta);
+    box-shadow:0 0 0 3px var(--alerta-suave); animation:late 2.4s ease-in-out infinite}
+  @keyframes late{0%,100%{opacity:1}50%{opacity:.35}}
+  .reloj{font-family:"IBM Plex Mono",monospace; font-size:19px; font-variant-numeric:tabular-nums;
+    padding:2px 10px; border:1px solid var(--linea); border-radius:6px; background:var(--panel-2)}
+  .reloj.rojo{color:var(--alerta); border-color:var(--alerta)}
+  .slots{display:flex; gap:5px; margin-left:auto; flex-wrap:wrap}
+  .slot{width:30px; height:36px; border:1.5px dashed var(--linea); border-radius:6px;
+    display:grid; place-items:center; font-family:"Chakra Petch",sans-serif; font-weight:700;
+    font-size:18px; color:var(--tinta-suave); background:var(--panel-2); transition:.25s}
+  .slot.ok{border-style:solid; border-color:var(--placa); color:var(--placa);
+    background:var(--placa-suave); transform:translateY(-2px)}
+
+  .card{background:var(--panel); border:1px solid var(--linea); border-radius:var(--r);
+    box-shadow:var(--sombra); padding:22px}
+  h1{font-family:"Chakra Petch",sans-serif; font-size:clamp(30px,7vw,46px); line-height:1.02;
+    margin:0 0 6px; text-wrap:balance; letter-spacing:-.01em}
+  h2{font-family:"Chakra Petch",sans-serif; font-size:clamp(21px,4.4vw,27px); margin:0 0 4px; text-wrap:balance}
+  p{margin:0 0 12px; max-width:62ch}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--cobre); margin:0 0 8px}
+  .lead{font-size:17px; color:var(--tinta-suave)}
+
+  .btn{font-family:"Chakra Petch",sans-serif; font-weight:700; font-size:16px; letter-spacing:.03em;
+    background:var(--tinta); color:var(--papel); border:1px solid var(--tinta); border-radius:8px;
+    padding:11px 20px; cursor:pointer; transition:transform .12s ease, filter .2s}
+  .btn:hover{filter:brightness(1.15)} .btn:active{transform:translateY(1px)}
+  .btn.sec{background:transparent; color:var(--tinta); border-color:var(--linea)}
+  .btn.cobre{background:var(--cobre); border-color:var(--cobre); color:#fff}
+  :focus-visible{outline:3px solid var(--cobre); outline-offset:2px; border-radius:4px}
+  .meta{display:flex; flex-wrap:wrap; gap:8px 18px; font-size:14px; color:var(--tinta-suave);
+    font-family:"IBM Plex Mono",monospace; margin-top:14px}
+  .check{display:flex; gap:10px; align-items:flex-start; background:var(--panel-2);
+    border:1px solid var(--linea); border-radius:var(--r); padding:12px 14px; margin:14px 0 4px; max-width:62ch}
+  .check input{margin-top:4px; width:18px; height:18px; accent-color:var(--cobre); flex:none}
+  .check label{font-size:14.5px; color:var(--tinta-suave)}
+  .check b{color:var(--tinta)}
+
+  .salahead{display:flex; align-items:flex-start; gap:14px; margin-bottom:10px}
+  .num{font-family:"Chakra Petch",sans-serif; font-weight:700; font-size:34px; line-height:1;
+    color:var(--cobre); background:var(--cobre-suave); border-radius:8px; padding:8px 12px; flex:none}
+  .barra{height:5px; background:var(--panel-2); border:1px solid var(--linea); border-radius:99px;
+    overflow:hidden; margin:14px 0 18px}
+  .barra i{display:block; height:100%; background:var(--cobre); width:0; transition:width .35s ease}
+  .paso{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--tinta-suave)}
+  .consigna{font-size:18px; font-weight:600; margin:2px 0 16px; text-wrap:balance; max-width:62ch}
+
+  .board{display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:10px}
+  .pieza{background:var(--panel-2); border:1.5px solid var(--linea); border-radius:var(--r);
+    padding:10px 6px 8px; cursor:pointer; text-align:center; transition:.15s; color:var(--tinta)}
+  .pieza:hover{border-color:var(--cobre); transform:translateY(-2px)}
+  .pieza svg{width:100%; height:66px; display:block}
+  .pieza span{display:block; font-size:12.5px; margin-top:6px; font-weight:500; line-height:1.25}
+  .pieza.bien{border-color:var(--placa); background:var(--placa-suave)}
+  .pieza.mal{border-color:var(--alerta); background:var(--alerta-suave); animation:tiembla .3s}
+  @keyframes tiembla{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  .ops{display:grid; gap:9px}
+  .op{text-align:left; background:var(--panel-2); border:1.5px solid var(--linea); border-radius:var(--r);
+    padding:12px 14px; cursor:pointer; font:inherit; color:var(--tinta); display:flex; gap:11px; transition:.15s}
+  .op:hover{border-color:var(--cobre)}
+  .op b{font-family:"IBM Plex Mono",monospace; color:var(--cobre); flex:none}
+  .op.bien{border-color:var(--placa); background:var(--placa-suave)}
+  .op.mal{border-color:var(--alerta); background:var(--alerta-suave); animation:tiembla .3s}
+
+  .clas{display:grid; gap:9px}
+  .fila{display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:var(--panel-2);
+    border:1.5px solid var(--linea); border-radius:var(--r); padding:10px 12px}
+  .fila p{margin:0; flex:1 1 200px; font-size:15px}
+  .fila .btn{padding:7px 12px; font-size:13.5px}
+  .fila.bien{border-color:var(--placa); background:var(--placa-suave)}
+  .fila.bien .acc{display:none}
+  .fila .tag{display:none; font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--placa)}
+  .fila.bien .tag{display:block}
+  .fila.mal{border-color:var(--alerta)}
+
+  /* ---- escenarios con dibujo ---- */
+  .escena{background:var(--panel-2); border:1px solid var(--linea); border-radius:var(--r);
+    padding:10px; overflow-x:auto}
+  .escena svg{width:100%; min-width:520px; height:auto; display:block; touch-action:none}
+  .hot{fill:transparent; stroke:transparent; stroke-width:3; cursor:pointer; rx:8}
+  .hot:hover{stroke:var(--cobre); stroke-dasharray:6 4}
+  .hot.bien{stroke:var(--placa); stroke-dasharray:none; fill:rgba(27,122,90,.14)}
+  .hot.mal{stroke:var(--alerta); stroke-dasharray:none; animation:tiembla .3s}
+  .rot{font-family:"IBM Plex Mono",monospace; font-size:11px; fill:var(--tinta-suave)}
+  .rot.claro{fill:#DCEEF0}
+  .rot.gris{fill:#96A3AB}
+  .rot-b{font-family:"Chakra Petch",sans-serif; font-size:13px; fill:#CFE3E6; letter-spacing:.08em}
+
+  .term{fill:var(--panel); stroke:var(--tinta); stroke-width:2.5; cursor:pointer; transition:.15s}
+  .term:hover{fill:var(--cobre)}
+  .term.sel{fill:var(--cobre); stroke:var(--cobre)}
+  .term.ok{fill:var(--placa); stroke:var(--placa)}
+  .term.mal{fill:var(--alerta); stroke:var(--alerta); animation:tiembla .3s}
+  .hit{fill:transparent; cursor:pointer}
+  .cable{fill:none; stroke-width:5; stroke-linecap:round}
+  .elastico{fill:none; stroke:var(--cobre); stroke-width:3; stroke-dasharray:7 6}
+
+  .lab{background:var(--panel-2); border:1px solid var(--linea); border-radius:var(--r); padding:14px}
+  .circuitos{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px}
+  .circuito{text-align:center}
+  .circuito svg{width:100%; max-width:320px; min-width:0; height:auto; margin:0 auto}
+  .lampara{fill:var(--panel); stroke:var(--tinta); stroke-width:3.5; transition:.25s}
+  .encendida .lampara{fill:#F6C453; stroke:var(--cobre)}
+  .halo{opacity:0; transition:.25s} .encendida .halo{opacity:.55}
+  .cablec{stroke:var(--tinta); stroke-width:3.5; fill:none; stroke-linecap:round; transition:.25s}
+  .apagado .cablec{stroke:var(--tinta-suave); stroke-dasharray:6 6}
+  .lamp{color:var(--tinta)}
+
+  .lista{display:grid; gap:6px; margin-top:12px}
+  .lista div{display:flex; gap:9px; align-items:center; font-size:14.5px; color:var(--tinta-suave);
+    font-family:"IBM Plex Mono",monospace}
+  .lista div b{width:19px; height:19px; border:1.5px solid var(--linea); border-radius:5px;
+    display:grid; place-items:center; font-size:12px; flex:none; background:var(--panel)}
+  .lista div.ok{color:var(--placa)}
+  .lista div.ok b{background:var(--placa); border-color:var(--placa); color:var(--panel)}
+
+  /* ---- código ---- */
+  .codigobox{background:#0E1E28; border:1px solid var(--linea); border-radius:var(--r);
+    padding:14px 16px; overflow-x:auto; color:#CFE3E6; font-family:"IBM Plex Mono",monospace;
+    font-size:14px; line-height:1.85}
+  .codigobox .kw{color:#7FD1B9} .codigobox .cm{color:#6E8A96} .codigobox .nm{color:#E8B583}
+  .codigobox select{font-family:"IBM Plex Mono",monospace; font-size:13.5px; background:#1B3644;
+    color:#FFD9A8; border:1.5px solid #2F5568; border-radius:6px; padding:2px 4px}
+  .codigobox select.ok{border-color:var(--placa); color:#9BE7C6}
+  .codigobox select.no{border-color:var(--alerta)}
+
+  .fb{margin-top:14px; border-radius:var(--r); padding:12px 14px; font-size:15px; display:none}
+  .fb.on{display:block; animation:sube .3s ease}
+  @keyframes sube{from{opacity:0; transform:translateY(6px)}to{opacity:1}}
+  .fb.ok{background:var(--placa-suave); border:1px solid var(--placa)}
+  .fb.no{background:var(--alerta-suave); border:1px solid var(--alerta)}
+  .fb b{font-family:"Chakra Petch",sans-serif}
+
+  .pistabox{margin-top:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+  .pistatxt{display:none; font-size:15px; color:var(--tinta-suave); border-left:3px solid var(--cobre);
+    padding-left:12px; flex:1 1 260px}
+  .pistatxt.on{display:block}
+
+  .premio{text-align:center; padding:26px 16px}
+  .palabra{font-family:"Chakra Petch",sans-serif; font-size:clamp(26px,6.4vw,42px); letter-spacing:.1em;
+    color:var(--placa); margin:6px 0 2px; word-break:break-word}
+  .palabra em{font-style:normal; background:var(--placa); color:var(--panel); padding:0 8px; border-radius:6px}
+
+  .codigo{display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin:18px 0}
+  .codigo div{width:42px; height:52px; border:2px solid var(--placa); border-radius:8px;
+    display:grid; place-items:center; font-family:"Chakra Petch",sans-serif; font-size:24px; color:var(--placa)}
+  #clave{font-family:"Chakra Petch",sans-serif; font-size:22px; letter-spacing:.24em; text-align:center;
+    text-transform:uppercase; padding:12px; width:min(320px,100%); border:2px solid var(--linea);
+    border-radius:8px; background:var(--panel-2); color:var(--tinta)}
+  .ganaste .num{background:var(--placa-suave); color:var(--placa)}
+  .pie{margin-top:18px; font-size:13px; color:var(--tinta-suave); text-align:center;
+    font-family:"IBM Plex Mono",monospace}
+  .sprite{position:absolute; width:0; height:0; overflow:hidden}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<svg class="sprite" aria-hidden="true">
+  <symbol id="c-resistencia" viewBox="0 0 100 100">
+    <path d="M4 50h22M74 50h22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <rect x="26" y="34" width="48" height="32" rx="7" fill="#C9A06A"/>
+    <rect x="34" y="34" width="6" height="32" fill="#2B2118"/>
+    <rect x="46" y="34" width="6" height="32" fill="#B3612F"/>
+    <rect x="58" y="34" width="6" height="32" fill="#D8C24A"/>
+  </symbol>
+  <symbol id="c-led" viewBox="0 0 100 100">
+    <path d="M40 66v26M60 66v20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <path d="M30 60V44a20 20 0 0 1 40 0v16z" fill="#E2453C"/>
+    <rect x="28" y="58" width="44" height="8" rx="3" fill="#9B2A24"/>
+    <path d="M76 26l10-8M80 40l12-3" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="c-capacitor" viewBox="0 0 100 100">
+    <path d="M40 70v22M60 70v22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <rect x="30" y="16" width="40" height="56" rx="8" fill="#3A5E8C"/>
+    <rect x="30" y="16" width="13" height="56" rx="8" fill="#C7D3E2"/>
+    <text x="36" y="52" font-size="20" fill="#3A5E8C" text-anchor="middle" font-family="monospace">–</text>
+    <text x="60" y="34" font-size="17" fill="#fff" text-anchor="middle" font-family="monospace">+</text>
+  </symbol>
+  <symbol id="c-pulsador" viewBox="0 0 100 100">
+    <path d="M30 68v22M70 68v22M36 68v18M64 68v18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <rect x="24" y="40" width="52" height="30" rx="5" fill="#2F3B46"/>
+    <circle cx="50" cy="36" r="13" fill="#D8503F"/><circle cx="50" cy="33" r="8" fill="#EE7362"/>
+  </symbol>
+  <symbol id="c-motor" viewBox="0 0 100 100">
+    <rect x="16" y="28" width="58" height="46" rx="10" fill="#8794A1"/>
+    <rect x="16" y="28" width="58" height="14" rx="7" fill="#AFBCC8"/>
+    <rect x="74" y="46" width="20" height="9" rx="3" fill="#5A6672"/>
+    <path d="M30 28V12M54 28V12" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="30" cy="12" r="4" fill="#B3612F"/><circle cx="54" cy="12" r="4" fill="#2B2118"/>
+  </symbol>
+  <symbol id="c-zumbador" viewBox="0 0 100 100">
+    <path d="M38 74v20M62 74v20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="46" r="28" fill="#23282D"/>
+    <circle cx="50" cy="46" r="28" fill="none" stroke="#454C53" stroke-width="3"/>
+    <circle cx="50" cy="34" r="4.5" fill="#6C757D"/>
+    <path d="M28 66h44" stroke="#454C53" stroke-width="3"/>
+  </symbol>
+  <symbol id="c-pila" viewBox="0 0 100 100">
+    <rect x="18" y="34" width="60" height="32" rx="5" fill="#2E6E4B"/>
+    <rect x="18" y="34" width="20" height="32" rx="5" fill="#D8C24A"/>
+    <rect x="78" y="42" width="8" height="16" rx="3" fill="#B7BCC2"/>
+    <text x="62" y="57" font-size="20" fill="#fff" text-anchor="middle" font-family="monospace">+</text>
+  </symbol>
+  <symbol id="c-potenciometro" viewBox="0 0 100 100">
+    <path d="M30 74v20M50 74v20M70 74v20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="46" r="26" fill="#3C4550"/>
+    <circle cx="50" cy="46" r="17" fill="#9AA5B1"/>
+    <path d="M50 46V30" stroke="#2B3138" stroke-width="5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="c-ldr" viewBox="0 0 100 100">
+    <path d="M38 72v22M62 72v22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="46" r="24" fill="#E4DBC6" stroke="#8A7F66" stroke-width="3"/>
+    <path d="M32 54c5-9 9-9 13 0s9 9 13 0 9-9 12 0" fill="none" stroke="#9A5B28" stroke-width="4"/>
+  </symbol>
+
+  <symbol id="s-lampara" viewBox="0 0 100 100">
+    <path d="M4 50h20M76 50h20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M32 32l36 36M68 32L32 68" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="s-interruptor" viewBox="0 0 100 100">
+    <path d="M4 60h24M72 60h24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <path d="M28 60L70 34" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="28" cy="60" r="6" fill="currentColor"/><circle cx="72" cy="60" r="6" fill="currentColor"/>
+  </symbol>
+  <symbol id="s-resistencia" viewBox="0 0 100 100">
+    <path d="M4 50h22M74 50h22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <rect x="26" y="34" width="48" height="32" fill="none" stroke="currentColor" stroke-width="4"/>
+  </symbol>
+  <symbol id="s-pila" viewBox="0 0 100 100">
+    <path d="M4 50h26M70 50h26" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <path d="M34 26v48M46 38v24M58 26v48M70 38v24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <text x="24" y="24" font-size="20" fill="currentColor" font-family="monospace">+</text>
+  </symbol>
+  <symbol id="s-motor" viewBox="0 0 100 100">
+    <path d="M4 50h20M76 50h20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="50" y="59" font-size="28" fill="currentColor" text-anchor="middle" font-family="monospace">M</text>
+  </symbol>
+  <symbol id="s-amperimetro" viewBox="0 0 100 100">
+    <path d="M4 50h20M76 50h20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="50" y="59" font-size="28" fill="currentColor" text-anchor="middle" font-family="monospace">A</text>
+  </symbol>
+  <symbol id="s-voltimetro" viewBox="0 0 100 100">
+    <path d="M4 50h20M76 50h20" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" stroke-width="4"/>
+    <text x="50" y="59" font-size="28" fill="currentColor" text-anchor="middle" font-family="monospace">V</text>
+  </symbol>
+  <symbol id="s-tierra" viewBox="0 0 100 100">
+    <path d="M50 16v34M26 50h48M34 64h32M42 78h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="s-zumbador" viewBox="0 0 100 100">
+    <path d="M10 70h14M76 70h14" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <path d="M24 70a26 26 0 0 1 52 0z" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M24 70h52" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="s-fusible" viewBox="0 0 100 100">
+    <path d="M4 50h22M74 50h22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <rect x="26" y="36" width="48" height="28" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M26 50h48" stroke="currentColor" stroke-width="4"/>
+  </symbol>
+  <symbol id="s-led" viewBox="0 0 100 100">
+    <path d="M4 50h22M74 50h22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <path d="M34 32v36l30-18z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M64 30v40" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    <path d="M70 26l12-10M76 40l13-5" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="marca"><span class="led"></span> Circuito Cerrado</div>
+    <div class="reloj" id="reloj" title="Tiempo restante">40:00</div>
+    <div class="slots" id="slots" aria-label="Letras del código final"></div>
+  </header>
+
+  <main id="main">
+
+    <section class="card" id="intro">
+      <p class="eyebrow">Sala de escape · Educación Tecnológica · 3.º año</p>
+      <h1>El laboratorio quedó cerrado por dentro</h1>
+      <p class="lead">Son las 18:40. Estabas terminando un proyecto en el taller cuando el sistema de seguridad
+        <b>BIT&#8209;3</b> detectó “actividad eléctrica no autorizada” y trabó la puerta.</p>
+      <p>BIT&#8209;3 te deja salir con una condición: que demuestres que sabés lo que estabas haciendo.
+        Hay <b>8 estaciones</b>. Cada una que resolvés te entrega una <b>palabra clave</b>, y con la
+        <b>primera letra de cada palabra</b>, en el orden en que las conseguiste, se arma el código que abre la puerta.</p>
+      <div class="check">
+        <input type="checkbox" id="mezclar">
+        <label for="mezclar"><b>Mezclar el orden de las estaciones.</b> Las preguntas y las opciones cambian
+          siempre; con esta opción también cambia el orden de las estaciones, así que cada jugador saca un
+          código distinto y no se puede copiar.</label>
+      </div>
+      <p style="margin-top:16px">
+        <button class="btn cobre" id="empezar">Entrar al laboratorio</button>
+        <button class="btn sec" id="seguir" hidden>Continuar donde iba</button></p>
+      <div class="meta"><span>8 estaciones</span><span>~40 min</span><span>Sin registro ni datos personales</span></div>
+    </section>
+
+    <section class="card" id="sala" hidden>
+      <div class="salahead">
+        <div class="num" id="salanum">01</div>
+        <div>
+          <h2 id="salatitulo">Estación</h2>
+          <p class="lead" id="salaintro" style="font-size:15.5px; margin:0"></p>
+        </div>
+      </div>
+      <div class="barra"><i id="barra"></i></div>
+      <div id="extra"></div>
+      <p class="paso" id="paso">Paso 1 de 4</p>
+      <p class="consigna" id="consigna"></p>
+      <div id="zona"></div>
+      <div class="fb" id="fb"></div>
+      <div class="pistabox">
+        <button class="btn sec" id="btnpista">Pedir una pista</button>
+        <div class="pistatxt" id="pista"></div>
+      </div>
+    </section>
+
+    <section class="card premio" id="premio" hidden>
+      <p class="eyebrow">Estación superada</p>
+      <h2 id="premiotit">Palabra clave liberada</h2>
+      <p class="palabra" id="premiopal"></p>
+      <p class="lead" id="premiotxt"></p>
+      <p><button class="btn cobre" id="siguiente">Continuar</button></p>
+    </section>
+
+    <section class="card" id="final" hidden>
+      <p class="eyebrow">Puerta principal · Teclado de 8 letras</p>
+      <h2>BIT-3 quiere el código</h2>
+      <p>Ocho palabras, ocho iniciales, en el orden en que las conseguiste. Escribilas y la puerta se abre.</p>
+      <div class="codigo" id="codigo"></div>
+      <p style="text-align:center">
+        <input id="clave" maxlength="8" autocomplete="off" spellcheck="false" aria-label="Código de salida" placeholder="????????"></p>
+      <p style="text-align:center"><button class="btn cobre" id="abrir">Abrir la puerta</button></p>
+      <div class="fb" id="fbfinal"></div>
+    </section>
+
+    <section class="card premio ganaste" id="ganaste" hidden>
+      <p class="eyebrow">Puerta abierta</p>
+      <h1 style="font-size:clamp(28px,6vw,42px)">Saliste del laboratorio</h1>
+      <p class="lead" id="tiempofinal"></p>
+      <p class="lead">BIT-3 apagó la alarma y te dejó esta nota: “Un circuito cerrado deja pasar la corriente.
+        Un lazo cerrado se corrige solo. Vos hiciste las dos cosas.”</p>
+      <p><button class="btn sec" id="reiniciar">Jugar de nuevo</button></p>
+    </section>
+
+  </main>
+  <p class="pie">Circuito Cerrado · material de aula · Educación Tecnológica</p>
+</div>
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var TIEMPO = 40*60;
+
+  /* ============ azar reproducible ============ */
+  function rng(semilla){
+    var s = semilla >>> 0;
+    return function(){
+      s = (s + 0x6D2B79F5) >>> 0;
+      var t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function mezclar(arr, rnd){
+    var a = arr.slice();
+    for(var i=a.length-1; i>0; i--){
+      var j = Math.floor(rnd()*(i+1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /* ============ piezas dibujadas ============ */
+  var COMPONENTES = [
+    {id:"resistencia",   n:"Resistencia",    s:"c-resistencia"},
+    {id:"led",           n:"LED",            s:"c-led"},
+    {id:"capacitor",     n:"Capacitor",      s:"c-capacitor"},
+    {id:"pulsador",      n:"Pulsador",       s:"c-pulsador"},
+    {id:"motor",         n:"Motor de CC",    s:"c-motor"},
+    {id:"zumbador",      n:"Zumbador",       s:"c-zumbador"},
+    {id:"pila",          n:"Pila",           s:"c-pila"},
+    {id:"potenciometro", n:"Potenciómetro",  s:"c-potenciometro"},
+    {id:"ldr",           n:"Fotorresistor",  s:"c-ldr"}
+  ];
+  var SIMBOLOS = [
+    {id:"pila",s:"s-pila"}, {id:"lampara",s:"s-lampara"}, {id:"interruptor",s:"s-interruptor"},
+    {id:"resistencia",s:"s-resistencia"}, {id:"motor",s:"s-motor"}, {id:"amperimetro",s:"s-amperimetro"},
+    {id:"voltimetro",s:"s-voltimetro"}, {id:"tierra",s:"s-tierra"}, {id:"zumbador",s:"s-zumbador"},
+    {id:"fusible",s:"s-fusible"}, {id:"led",s:"s-led"}
+  ];
+
+  /* ============ circuitos serie / paralelo ============ */
+  function lampara(x,y,id,dx){
+    dx = dx || 0;
+    return '<g class="lamp" data-l="'+id+'">'+
+      '<circle class="halo" cx="'+x+'" cy="'+y+'" r="26" fill="#F6C453"/>'+
+      '<circle class="lampara" cx="'+x+'" cy="'+y+'" r="14"/>'+
+      '<path d="M'+(x-10)+' '+(y-10)+'l20 20M'+(x+10)+' '+(y-10)+'l-20 20" stroke="currentColor" stroke-width="2.6"/>'+
+      '<text class="rot" x="'+(x+dx)+'" y="'+(y+(dx?4:34))+'" text-anchor="'+(dx?'start':'middle')+'">'+id+'</text></g>';
+  }
+  var SVG_SERIE =
+    '<svg viewBox="0 0 300 170" role="img" aria-label="Circuito en serie con tres lámparas">'+
+      '<g class="cablec"><path d="M40 130h220M40 130V60M40 60h30M260 130V60M260 60h-30"/>'+
+      '<path d="M100 60h30M170 60h30"/></g>'+
+      '<g class="cablec"><path d="M28 118v24M34 112v36M46 118v24M52 112v36"/></g>'+
+      '<text class="rot" x="40" y="162" text-anchor="middle">pila</text>'+
+      lampara(85,60,"L1")+lampara(150,60,"L2")+lampara(215,60,"L3")+'</svg>';
+  var SVG_PARALELO =
+    '<svg viewBox="0 0 300 170" role="img" aria-label="Circuito en paralelo con tres lámparas">'+
+      '<g class="cablec"><path d="M40 140h220M40 140V30M40 30h220M260 30v110"/>'+
+      '<path d="M85 30v16M85 74v66M150 30v16M150 74v66M215 30v16M215 74v66"/></g>'+
+      '<g class="cablec"><path d="M28 128v24M34 122v36M46 128v24M52 122v36"/></g>'+
+      '<text class="rot" x="40" y="168" text-anchor="middle">pila</text>'+
+      lampara(85,60,"L1",20)+lampara(150,60,"L2",20)+lampara(215,60,"L3",20)+'</svg>';
+  var LAB3 =
+    '<div class="lab" style="margin-bottom:18px"><h3 style="font-family:Chakra Petch,sans-serif;margin:0 0 10px;font-size:16px">'+
+      'Banco de pruebas · sacá una lámpara y mirá qué pasa</h3>'+
+      '<div class="circuitos">'+
+        '<div class="circuito" id="cir-serie">'+SVG_SERIE+
+          '<p class="paso" style="margin:2px 0 8px">Circuito en serie</p>'+
+          '<button class="btn sec" data-cir="serie" type="button">Sacar L2</button></div>'+
+        '<div class="circuito" id="cir-paralelo">'+SVG_PARALELO+
+          '<p class="paso" style="margin:2px 0 8px">Circuito en paralelo</p>'+
+          '<button class="btn sec" data-cir="paralelo" type="button">Sacar L2</button></div>'+
+      '</div></div>';
+
+  /* ============ placa Arduino: reconocer partes ============ */
+  function agujeros(x0, n, y, paso){
+    var h = "";
+    for(var i=0;i<n;i++) h += '<circle cx="'+(x0+i*paso)+'" cy="'+y+'" r="4.6" fill="#454B51"/>';
+    return h;
+  }
+  function placaPartes(){
+    return '<svg viewBox="0 0 620 370" role="img" aria-label="Placa Arduino Uno vista desde arriba">'+
+      '<rect x="50" y="40" width="520" height="280" rx="16" fill="#12757C" stroke="#0A565B" stroke-width="3"/>'+
+      '<rect x="16" y="64" width="66" height="58" rx="5" fill="#C9CDD2" stroke="#8A9098" stroke-width="2"/>'+
+      '<rect x="16" y="238" width="66" height="58" rx="9" fill="#17181A"/>'+
+      '<circle cx="49" cy="267" r="9" fill="#3A3F44"/>'+
+      '<rect x="170" y="44" width="380" height="26" rx="3" fill="#131517"/>'+ agujeros(185,13,57,29)+
+      '<rect x="140" y="290" width="160" height="26" rx="3" fill="#131517"/>'+ agujeros(155,6,303,26)+
+      '<rect x="330" y="290" width="190" height="26" rx="3" fill="#131517"/>'+ agujeros(345,7,303,26)+
+      '<rect x="280" y="148" width="210" height="80" rx="5" fill="#1A1C1F"/>'+
+      '<circle cx="296" cy="164" r="6" fill="#3A3F44"/>'+
+      '<text class="rot gris" x="385" y="196" text-anchor="middle">MICROCONTROLADOR</text>'+
+      '<rect x="150" y="92" width="38" height="38" rx="7" fill="#B9BDC2"/>'+
+      '<circle cx="169" cy="111" r="10" fill="#7E848B"/>'+
+      '<rect x="232" y="100" width="22" height="12" rx="2" fill="#F2C230"/>'+
+      '<text class="rot claro" x="226" y="110" text-anchor="end">L</text>'+
+      '<rect x="120" y="150" width="120" height="70" rx="6" fill="#0E6469"/>'+
+      '<text class="rot-b" x="180" y="182" text-anchor="middle">ARDUINO</text>'+
+      '<text class="rot-b" x="180" y="202" text-anchor="middle">UNO</text>'+
+      '<text class="rot claro" x="360" y="86" text-anchor="middle">DIGITAL  (PWM ~)</text>'+
+      '<text class="rot claro" x="220" y="284" text-anchor="middle">POWER</text>'+
+      '<text class="rot claro" x="425" y="284" text-anchor="middle">ANALOG IN</text>'+
+      '<g id="hots">'+
+        '<rect class="hot" data-id="usb"     x="14" y="58"  width="76" height="70"/>'+
+        '<rect class="hot" data-id="jack"    x="14" y="232" width="76" height="70"/>'+
+        '<rect class="hot" data-id="digital" x="164" y="38" width="392" height="38"/>'+
+        '<rect class="hot" data-id="poder"   x="134" y="284" width="172" height="38"/>'+
+        '<rect class="hot" data-id="analog"  x="324" y="284" width="202" height="38"/>'+
+        '<rect class="hot" data-id="reset"   x="144" y="86"  width="50" height="50"/>'+
+        '<rect class="hot" data-id="micro"   x="274" y="142" width="222" height="92"/>'+
+        '<rect class="hot" data-id="led13"   x="212" y="92"  width="48" height="28"/>'+
+      '</g></svg>';
+  }
+
+  /* ============ escenas de cableado ============ */
+  var PINES_DIG = ["gndd","13","12","11","10","9","8","7","6","5"];
+  function placaCable(){
+    var svg = '<rect x="40" y="20" width="620" height="126" rx="12" fill="#12757C" stroke="#0A565B" stroke-width="3"/>'+
+      '<rect x="8" y="46" width="50" height="48" rx="4" fill="#C9CDD2" stroke="#8A9098" stroke-width="2"/>'+
+      '<rect x="300" y="52" width="160" height="56" rx="5" fill="#1A1C1F"/>'+
+      '<text class="rot gris" x="380" y="86" text-anchor="middle">MICROCONTROLADOR</text>'+
+      '<text class="rot-b" x="80" y="44" fill="#CFE3E6">ARDUINO UNO</text>'+
+      '<rect x="96" y="132" width="152" height="18" rx="2" fill="#131517"/>'+
+      '<rect x="330" y="132" width="310" height="18" rx="2" fill="#131517"/>'+
+      '<text class="rot claro" x="172" y="126" text-anchor="middle">POWER</text>'+
+      '<text class="rot claro" x="485" y="126" text-anchor="middle">DIGITAL</text>';
+    var terms = [
+      {id:"5v",  x:120, y:178, t:"5V"},
+      {id:"gnd", x:172, y:178, t:"GND"},
+      {id:"vin", x:224, y:178, t:"VIN"}
+    ];
+    for(var i=0;i<PINES_DIG.length;i++){
+      terms.push({id:PINES_DIG[i]==="gndd"?"gndd":("d"+PINES_DIG[i]), x:345+i*31, y:178,
+                  t:PINES_DIG[i]==="gndd"?"GND":PINES_DIG[i]});
+    }
+    return {svg:svg, terms:terms};
+  }
+
+  function dibujarTerms(terms){
+    var h = '<g class="terms">';
+    for(var i=0;i<terms.length;i++){
+      var t = terms[i];
+      h += '<text class="rot" x="'+t.x+'" y="'+(t.b ? t.y+21 : t.y-13)+'" text-anchor="middle">'+t.t+'</text>'+
+           '<circle class="term" id="t-'+t.id+'" cx="'+t.x+'" cy="'+t.y+'" r="7.5"/>'+
+           '<circle class="hit" data-t="'+t.id+'" cx="'+t.x+'" cy="'+t.y+'" r="17"/>';
+    }
+    return h + '</g>';
+  }
+
+  function escenaSemaforo(){
+    var p = placaCable();
+    var lamps = [{c:"#E2453C",y:278,n:"rojo"},{c:"#E8A62C",y:330,n:"amarillo"},{c:"#3FA46A",y:382,n:"verde"}];
+    var d = '<rect x="60" y="238" width="132" height="192" rx="14" fill="#23282D"/>';
+    var terms = p.terms.slice();
+    for(var i=0;i<lamps.length;i++){
+      var L = lamps[i];
+      d += '<circle cx="126" cy="'+L.y+'" r="26" fill="'+L.c+'"/>'+
+           '<path d="M192 '+L.y+'h22" stroke="#7E848B" stroke-width="3"/>'+
+           '<rect x="214" y="'+(L.y-9)+'" width="34" height="18" rx="3" fill="#C9A06A"/>'+
+           '<path d="M248 '+L.y+'h14" stroke="#7E848B" stroke-width="3"/>'+
+           '<path d="M126 '+(L.y+26)+'v10h190v-10" stroke="#7E848B" stroke-width="3" fill="none"/>';
+      terms.push({id:"a"+i, x:272, y:L.y, t:"+ "+L.n});
+      terms.push({id:"k"+i, x:326, y:L.y+36, t:"– "+L.n, b:true});
+    }
+    d += '<text class="rot" x="231" y="252" text-anchor="middle">220 Ω</text>';
+    return {
+      svg:'<svg viewBox="0 0 700 470" role="img" aria-label="Placa Arduino y semáforo de tres LED">'+
+        p.svg + d + '<g id="cables"></g>' + dibujarTerms(terms) + '</svg>',
+      req:[
+        {a:"a0", b:"d13", c:"#E2453C", t:"LED rojo (+) al pin 13"},
+        {a:"a1", b:"d12", c:"#E8A62C", t:"LED amarillo (+) al pin 12"},
+        {a:"a2", b:"d11", c:"#3FA46A", t:"LED verde (+) al pin 11"},
+        {a:"k0", b:["gnd","gndd"], c:"#4A5661", t:"LED rojo (–) a GND"},
+        {a:"k1", b:["gnd","gndd"], c:"#4A5661", t:"LED amarillo (–) a GND"},
+        {a:"k2", b:["gnd","gndd"], c:"#4A5661", t:"LED verde (–) a GND"}
+      ]
+    };
+  }
+
+  function escenaUltrasonido(){
+    var p = placaCable();
+    var d = '<rect x="70" y="248" width="270" height="118" rx="10" fill="#2B5FA8"/>'+
+      '<circle cx="140" cy="305" r="42" fill="#B7BCC2" stroke="#8A9098" stroke-width="3"/>'+
+      '<circle cx="140" cy="305" r="30" fill="none" stroke="#8A9098" stroke-width="2"/>'+
+      '<circle cx="270" cy="305" r="42" fill="#B7BCC2" stroke="#8A9098" stroke-width="3"/>'+
+      '<circle cx="270" cy="305" r="30" fill="none" stroke="#8A9098" stroke-width="2"/>'+
+      '<rect x="180" y="258" width="50" height="30" rx="3" fill="#17181A"/>'+
+      '<text class="rot claro" x="205" y="348" text-anchor="middle">HC-SR04</text>'+
+      '<circle cx="520" cy="300" r="46" fill="#23282D"/>'+
+      '<circle cx="520" cy="300" r="46" fill="none" stroke="#454C53" stroke-width="3"/>'+
+      '<circle cx="520" cy="286" r="6" fill="#6C757D"/>'+
+      '<text class="rot" x="520" y="368" text-anchor="middle">zumbador</text>';
+    var terms = p.terms.concat([
+      {id:"vcc",  x:100, y:410, t:"VCC"},
+      {id:"trig", x:170, y:410, t:"Trig"},
+      {id:"echo", x:240, y:410, t:"Echo"},
+      {id:"gnds", x:310, y:410, t:"GND"},
+      {id:"bz",   x:482, y:410, t:"+ zumb."},
+      {id:"bzk",  x:558, y:410, t:"– zumb."}
+    ]);
+    d += '<path d="M100 366v44M170 366v44M240 366v44M310 366v44" stroke="#7E848B" stroke-width="3"/>'+
+         '<path d="M500 340l-18 70M540 340l18 70" stroke="#7E848B" stroke-width="3"/>';
+    return {
+      svg:'<svg viewBox="0 0 700 470" role="img" aria-label="Placa Arduino, sensor de ultrasonido y zumbador">'+
+        p.svg + d + '<g id="cables"></g>' + dibujarTerms(terms) + '</svg>',
+      req:[
+        {a:"vcc",  b:"5v",  c:"#E2453C", t:"VCC del sensor a 5V"},
+        {a:"gnds", b:["gnd","gndd"], c:"#4A5661", t:"GND del sensor a GND"},
+        {a:"trig", b:"d9",  c:"#E8A62C", t:"Trig del sensor al pin 9"},
+        {a:"echo", b:"d8",  c:"#3B82C4", t:"Echo del sensor al pin 8"},
+        {a:"bz",   b:"d6",  c:"#7A5AA8", t:"Zumbador (+) al pin 6"},
+        {a:"bzk",  b:["gnd","gndd"], c:"#4A5661", t:"Zumbador (–) a GND"}
+      ]
+    };
+  }
+
+  /* ============ sketch del semáforo ============ */
+  var SKETCH =
+    '<span class="cm">// Semáforo: rojo en 13, amarillo en 12, verde en 11</span>\n'+
+    '<span class="kw">void</span> <span class="nm">setup</span>() {\n'+
+    '  pinMode(13, @@0@@);\n'+
+    '  pinMode(12, OUTPUT);\n'+
+    '  pinMode(11, OUTPUT);\n'+
+    '}\n\n'+
+    '<span class="kw">void</span> <span class="nm">loop</span>() {\n'+
+    '  digitalWrite(13, @@1@@);  <span class="cm">// enciende el rojo</span>\n'+
+    '  delay(4000);\n'+
+    '  digitalWrite(13, LOW);\n'+
+    '  digitalWrite(12, HIGH);\n'+
+    '  @@2@@(1000);       <span class="cm">// el amarillo dura 1 segundo</span>\n'+
+    '  digitalWrite(12, LOW);\n'+
+    '  digitalWrite(11, HIGH);\n'+
+    '  delay(4000);\n'+
+    '  digitalWrite(11, @@3@@);  <span class="cm">// apaga el verde y vuelve a empezar</span>\n'+
+    '}';
+
+  /* ============ contenido ============ */
+  var SALAS = [
+    {
+      titulo:"Taller de componentes", palabra:"CONDENSADOR", board:"comp",
+      intro:"BIT-3 tiró todas las piezas sobre la mesa. Tocá la que corresponde a cada descripción.",
+      cierre:"“Condensador” es el otro nombre del capacitor: guarda carga y la libera de golpe.",
+      n:4, pool:[
+        {k:"pick", ans:"resistencia", txt:"Limita el paso de la corriente para que los demás componentes no se quemen. Sus bandas de colores indican cuánto limita.", pista:"Buscá la pieza con tres franjas de colores.", ok:"Resistencia. Se mide en ohmios (Ω) y no tiene polaridad."},
+        {k:"pick", ans:"led", txt:"Solo se enciende si lo conectás en el sentido correcto: tiene una pata larga (+) y una corta (–).", pista:"Es el que emite luz.", ok:"LED: diodo emisor de luz. Deja pasar la corriente en un solo sentido."},
+        {k:"pick", ans:"pulsador", txt:"Mientras lo apretás cierra el circuito; cuando lo soltás, lo abre de nuevo.", pista:"Tiene un botoncito arriba.", ok:"Pulsador. A diferencia del interruptor, no queda trabado."},
+        {k:"pick", ans:"motor", txt:"Convierte energía eléctrica en movimiento. Si le invertís los cables, gira al revés.", pista:"Es el único con un eje saliendo del cuerpo.", ok:"Motor de corriente continua: un actuador."},
+        {k:"pick", ans:"capacitor", txt:"Guarda energía eléctrica un ratito y después la suelta. Tiene una franja que marca el polo negativo.", pista:"Parece un tubito con una raya a un costado.", ok:"Capacitor, también llamado condensador."},
+        {k:"pick", ans:"zumbador", txt:"Convierte la energía eléctrica en sonido. En las alarmas es el que hace “biiip”.", pista:"Es negro, redondo y tiene un agujerito arriba.", ok:"Zumbador o buzzer. Otro actuador, como el motor."},
+        {k:"pick", ans:"pila", txt:"Es la fuente: entrega la energía que hace circular la corriente por todo el circuito.", pista:"Tiene un borne + y un borne –.", ok:"Pila. Sin fuente, no hay corriente."},
+        {k:"pick", ans:"potenciometro", txt:"Es una resistencia que podés variar girando una perilla. Sirve para regular el volumen o la velocidad.", pista:"Tiene una perilla y tres patitas.", ok:"Potenciómetro: resistencia variable."},
+        {k:"pick", ans:"ldr", txt:"Su resistencia cambia según cuánta luz recibe. Es el sensor de las luces que se prenden solas de noche.", pista:"Tiene una línea con forma de serpiente en la cara.", ok:"Fotorresistor o LDR: un sensor de luz."}
+      ]
+    },
+    {
+      titulo:"Panel de simbología", palabra:"INTERRUPTOR", board:"simb",
+      intro:"El plano del laboratorio está en la pared. BIT-3 te pide que señales símbolos del esquema.",
+      cierre:"El interruptor es el elemento de maniobra: abre y cierra el circuito a voluntad.",
+      n:4, pool:[
+        {k:"pick", ans:"pila", txt:"Señalá el símbolo de la pila o batería: la fuente que empuja la corriente.", pista:"Son rayas alternadas, una larga (+) y una corta (–).", ok:"Pila. La raya larga es el positivo."},
+        {k:"pick", ans:"lampara", txt:"Señalá la lámpara: el receptor que convierte la corriente en luz.", pista:"Es un círculo con una cruz adentro.", ok:"Lámpara. La cruz representa el filamento."},
+        {k:"pick", ans:"interruptor", txt:"Señalá el elemento de maniobra que abre y cierra el circuito a voluntad.", pista:"Se dibuja como una palanca levantada entre dos puntos.", ok:"Interruptor. Dibujado así, el circuito está abierto."},
+        {k:"pick", ans:"amperimetro", txt:"Señalá el instrumento que mide la intensidad de la corriente y se conecta en serie.", pista:"Lleva la inicial de su unidad adentro del círculo.", ok:"Amperímetro. Mide en amperios (A)."},
+        {k:"pick", ans:"voltimetro", txt:"Señalá el instrumento que mide la tensión y se conecta en paralelo.", pista:"Lleva una V adentro del círculo.", ok:"Voltímetro. Mide en voltios (V)."},
+        {k:"pick", ans:"resistencia", txt:"Señalá la resistencia: se dibuja como un rectángulo en medio del conductor.", pista:"Es el único rectángulo vacío del panel.", ok:"Resistencia. Limita la corriente."},
+        {k:"pick", ans:"motor", txt:"Señalá el receptor que transforma la corriente en movimiento.", pista:"Lleva una M adentro del círculo.", ok:"Motor."},
+        {k:"pick", ans:"tierra", txt:"Señalá el símbolo de puesta a tierra, el que protege de las descargas.", pista:"Son tres rayas cada vez más cortas.", ok:"Puesta a tierra. En Arduino se llama GND."},
+        {k:"pick", ans:"zumbador", txt:"Señalá el receptor que convierte la corriente en sonido.", pista:"Tiene forma de campana o media luna.", ok:"Zumbador."},
+        {k:"pick", ans:"led", txt:"Señalá el diodo LED: un triángulo con una raya y dos flechitas de luz.", pista:"El triángulo indica el sentido en que pasa la corriente.", ok:"LED. El triángulo apunta del + al –."}
+      ]
+    },
+    {
+      titulo:"Banco de circuitos", palabra:"RAMA", extra:LAB3,
+      intro:"Dos circuitos armados sobre la mesa. Probá qué pasa al sacar una lámpara y después respondé.",
+      cierre:"Cada camino independiente de un circuito en paralelo es una rama.",
+      n:3, pool:[
+        {k:"choice", txt:"En el circuito en SERIE sacaste L2. ¿Qué pasó con L1 y L3?", ops:["Se apagaron las dos: hay un solo camino y quedó interrumpido.","Siguieron encendidas igual que antes.","Se encendieron con más fuerza."], pista:"Probá el botón “Sacar L2” del circuito de la izquierda.", ok:"En serie hay un único camino: si se corta en un punto, se corta para todos."},
+        {k:"choice", txt:"En el circuito en PARALELO sacaste L2. ¿Qué pasó?", ops:["Solo se apagó L2; L1 y L3 siguieron funcionando.","Se apagaron las tres.","No se apagó ninguna."], pista:"Probá el botón del circuito de la derecha.", ok:"Cada rama es un camino independiente."},
+        {k:"choice", txt:"El interruptor del laboratorio está abierto. ¿Circula corriente?", ops:["No: un circuito abierto interrumpe el camino y no circula corriente.","Sí, pero más despacio.","Sí, la corriente salta el espacio vacío."], pista:"“Abierto” describe el camino, no la llave de luz.", ok:"Para que haya corriente el circuito tiene que estar cerrado."},
+        {k:"choice", txt:"Todo circuito necesita tres partes mínimas. ¿Cuáles son?", ops:["Fuente de energía, conductores y receptor.","Motor, sensor y programa.","Enchufe, cable y tornillo."], pista:"Qué da la energía, qué la transporta y qué la usa.", ok:"Fuente, conductores y receptor, más los elementos de maniobra y protección."},
+        {k:"choice", txt:"¿Por qué las luces de un aula se conectan en paralelo y no en serie?", ops:["Para que si se quema una, las demás sigan encendidas.","Para gastar menos cable.","Porque en serie no se pueden usar lámparas."], pista:"Pensá qué pasaría cada vez que se quema una lamparita.", ok:"Y además cada lámpara recibe la tensión completa de la fuente."},
+        {k:"choice", txt:"En el circuito en serie agregás una cuarta lámpara. ¿Qué pasa con el brillo?", ops:["Todas alumbran un poco menos: la tensión se reparte entre más lámparas.","Todas alumbran más.","No cambia nada."], pista:"La misma pila tiene que alcanzar para una lámpara más.", ok:"En serie la tensión se reparte; en paralelo cada rama recibe la tensión completa."},
+        {k:"choice", txt:"¿Cuál es la función de un fusible en un circuito?", ops:["Cortar el paso de la corriente si pasa más de la cuenta, para proteger.","Aumentar la corriente disponible.","Medir cuánta energía se usa."], pista:"Es un elemento de protección: se sacrifica él.", ok:"El fusible se corta antes de que se queme el resto."},
+        {k:"choice", txt:"Un cortocircuito es…", ops:["Un camino sin receptor entre los dos polos de la fuente: la corriente se dispara.","Un circuito demasiado corto de largo.","Un circuito con el interruptor abierto."], pista:"El problema es que la corriente no encuentra nada que la frene.", ok:"Por eso siempre hay que poner un receptor y una protección."}
+      ]
+    },
+    {
+      titulo:"Sala de control", palabra:"CERRADO",
+      intro:"BIT-3 muestra los aparatos del edificio. Clasificá cómo controla cada uno lo que hace.",
+      cierre:"Lazo abierto: hace lo programado y nada más. Lazo cerrado: mide el resultado y se corrige.",
+      n:1, pool:[
+        {k:"choice", txt:"¿Qué tiene un sistema de lazo cerrado que el de lazo abierto no tiene?", ops:["Un sensor que mide el resultado y lo devuelve al control (realimentación).","Un motor más potente.","Un cable más grueso."], pista:"¿Con qué se mide el resultado?", ok:"La realimentación: el sistema compara lo que pasa con lo que quería y ajusta solo."},
+        {k:"choice", txt:"En un sistema de control, ¿qué hace un actuador?", ops:["Ejecuta la acción: mueve, calienta, enciende o suena.","Mide una magnitud del ambiente.","Guarda el programa."], pista:"Un motor y un zumbador son ejemplos.", ok:"Sensor mide, control decide, actuador actúa."},
+        {k:"choice", txt:"El termostato de una estufa mide 18 °C y vos pediste 22 °C. ¿Qué hace el control?", ops:["Mantiene la estufa encendida hasta llegar a 22 °C y ahí corta.","Apaga la estufa porque ya midió.","Avisa y no hace nada más."], pista:"Compara el valor medido con el valor deseado.", ok:"Eso es realimentación negativa: corrige la diferencia."},
+        {k:"choice", txt:"¿Cuál de estos es un SENSOR?", ops:["El fotorresistor que detecta si hay luz.","El zumbador que suena.","El motor que abre el portón."], pista:"El sensor es la entrada de información del sistema.", ok:"Los otros dos son actuadores: son la salida."}
+      ],
+      fijos:[
+        {k:"clasif", txt:"Clasificá cada aparato del edificio.", labels:["Lazo abierto","Lazo cerrado"], take:4,
+         pista:"Preguntate: ¿hay algo que mida el resultado mientras funciona?",
+         ok:"La diferencia siempre está en si el sistema se entera del resultado.",
+         items:[
+           {t:"Tostadora que tuesta 2 minutos y salta.", a:0, why:"Mide tiempo, no el color del pan."},
+           {t:"Aire acondicionado con termostato en 22 °C.", a:1, why:"Mide la temperatura y corta solo."},
+           {t:"Lámpara del aula con interruptor de pared.", a:0, why:"Nadie mide cuánta luz hay."},
+           {t:"Riego que se activa cuando el sensor detecta tierra seca.", a:1, why:"El sensor de humedad realimenta."},
+           {t:"Semáforo con tiempos fijos de 40 segundos.", a:0, why:"Cambia por reloj, sin mirar el tránsito."},
+           {t:"Control crucero de un auto en subida.", a:1, why:"Mide la velocidad real y acelera para sostenerla."},
+           {t:"Portón con sensor que frena si hay algo debajo.", a:1, why:"El sensor corrige la acción del motor."},
+           {t:"Microondas programado a 2 minutos.", a:0, why:"Termina por tiempo, no por temperatura de la comida."}
+         ]}
+      ]
+    },
+    {
+      titulo:"La placa del laboratorio", palabra:"USB", escena:"placa",
+      intro:"La placa Arduino que quedó conectada. Tocá la parte que BIT-3 te pide en cada caso.",
+      cierre:"El puerto USB alimenta la placa y le pasa el programa desde la computadora.",
+      n:4, pool:[
+        {k:"hot", ans:"usb", txt:"Tocá el conector por el que se carga el programa desde la computadora.", pista:"Es el rectángulo metálico del costado izquierdo.", ok:"Puerto USB: pasa el programa y además alimenta la placa."},
+        {k:"hot", ans:"jack", txt:"Tocá el conector para alimentar la placa con una fuente externa, sin computadora.", pista:"Es el conector negro y redondeado de abajo a la izquierda.", ok:"Jack de alimentación: acepta entre 7 y 12 V."},
+        {k:"hot", ans:"digital", txt:"Tocá la tira de pines donde se conectan LEDs, zumbadores y pulsadores: los que solo entienden encendido o apagado.", pista:"Es la tira larga del borde de arriba.", ok:"Pines digitales: valores HIGH o LOW."},
+        {k:"hot", ans:"analog", txt:"Tocá la tira de pines que lee valores intermedios, como los de un potenciómetro o un sensor de luz.", pista:"Está abajo a la derecha y dice ANALOG IN.", ok:"Entradas analógicas A0 a A5: leen de 0 a 1023."},
+        {k:"hot", ans:"poder", txt:"Tocá la tira de pines que entrega 5V, 3.3V y GND a los componentes.", pista:"Está abajo a la izquierda y dice POWER.", ok:"Pines de alimentación. GND es el negativo común."},
+        {k:"hot", ans:"reset", txt:"Tocá el botón que reinicia el programa desde el principio.", pista:"Es el botoncito cuadrado de arriba a la izquierda.", ok:"Botón de reset: vuelve a empezar el sketch."},
+        {k:"hot", ans:"micro", txt:"Tocá el chip negro que guarda y ejecuta el programa: el cerebro de la placa.", pista:"Es el rectángulo negro grande del centro.", ok:"El microcontrolador. Todo lo demás está a su servicio."},
+        {k:"hot", ans:"led13", txt:"Tocá el LED que ya viene soldado en la placa y responde al pin 13.", pista:"Es el rectangulito amarillo marcado con una L.", ok:"El LED integrado “L”: sirve para probar sin conectar nada."}
+      ]
+    },
+    {
+      titulo:"El semáforo del pasillo", palabra:"INTERVALO",
+      intro:"El semáforo de la puerta quedó desconectado. Armalo y escribí el programa que lo hace funcionar.",
+      cierre:"Cada luz dura un intervalo de tiempo: eso es lo que define delay() en el programa.",
+      n:0, pool:[], fijos:[
+        {k:"cablear", escena:"semaforo",
+         txt:"Conectá el semáforo a la placa: tocá un terminal y después el otro para tender el cable.",
+         pista:"Cada LED necesita dos cables: el positivo va a su pin digital y el negativo siempre va a GND. Los tres pueden compartir el mismo GND.",
+         ok:"Semáforo cableado. Cada LED ya trae su resistencia de 220 Ω: sin ella se quemaría."},
+        {k:"codigo", txt:"Completá los huecos del programa para que el semáforo funcione.",
+         pista:"pinMode necesita saber si el pin es salida; digitalWrite necesita HIGH o LOW; para esperar se usa delay().",
+         ok:"Ese es el ciclo completo: encender, esperar un intervalo, apagar y pasar al siguiente color.",
+         huecos:[
+           {ops:["OUTPUT","INPUT","ANALOG"], ans:"OUTPUT"},
+           {ops:["HIGH","LOW","ON"], ans:"HIGH"},
+           {ops:["delay","wait","pause"], ans:"delay"},
+           {ops:["LOW","HIGH","OFF"], ans:"LOW"}
+         ]}
+      ]
+    },
+    {
+      titulo:"Alarma de proximidad", palabra:"TRIGGER",
+      intro:"El sensor de ultrasonido de la puerta está suelto. Conectalo con el zumbador y definí cómo avisa.",
+      cierre:"El pin Trigger es el que dispara el pulso de ultrasonido; el Echo escucha cuándo vuelve.",
+      n:0, pool:[], fijos:[
+        {k:"cablear", escena:"ultrasonido",
+         txt:"Conectá el sensor HC-SR04 y el zumbador a la placa.",
+         pista:"El sensor tiene cuatro patas: VCC va a 5V, GND a GND, y Trig y Echo a pines digitales (9 y 8). El zumbador va al pin 6 y a GND.",
+         ok:"Todo conectado. VCC y GND alimentan; Trig y Echo son los que hablan con el programa."},
+        {k:"clasif", txt:"El programa enciende un LED distinto según la distancia medida. Asigná cada caso.",
+         labels:["LED rojo y zumbador","LED amarillo","LED verde"],
+         pista:"Cuanto más cerca está el obstáculo, más urgente tiene que ser el aviso.",
+         ok:"Así funciona una alarma de estacionamiento: la urgencia crece cuando la distancia baja.",
+         items:[
+           {t:"Menos de 10 cm: el obstáculo está encima.", a:0, why:"Peligro: aviso visual y sonoro."},
+           {t:"Entre 10 y 25 cm: hay que tener cuidado.", a:1, why:"Precaución, todavía sin sonido."},
+           {t:"Más de 25 cm: el camino está libre.", a:2, why:"Todo bien, sigue el verde."}
+         ]},
+        {k:"choice", txt:"¿Cómo hace el sensor para medir la distancia?", ops:["Manda un pulso de ultrasonido y mide cuánto tarda en volver el eco.","Mide la luz que refleja el objeto.","Mide la temperatura del obstáculo."], pista:"Es el mismo sistema que usan los murciélagos.", ok:"Con el tiempo del eco y la velocidad del sonido se calcula la distancia."}
+      ]
+    },
+    {
+      titulo:"Servidor de BIT-3", palabra:"ORIGEN",
+      intro:"La última puerta es el propio sistema. BIT-3 quiere saber si entendés qué es y qué no es una IA.",
+      cierre:"Antes de usar lo que dice una IA, verificá el origen de los datos. Ella aprende de datos: si el origen está sesgado o es falso, la respuesta también.",
+      n:3, pool:[
+        {k:"choice", txt:"¿Qué hace una inteligencia artificial GENERATIVA?", ops:["Crea contenido nuevo (texto, imagen, audio, código) a partir de patrones que aprendió.","Copia y pega resultados guardados en una base de datos.","Devuelve la primera página que encuentra en internet."], pista:"“Generativa” viene de generar.", ok:"Genera algo nuevo cada vez: por eso dos respuestas nunca son idénticas."},
+        {k:"choice", txt:"Le pedís una biografía a una IA y te inventa datos con total seguridad. ¿Cómo se llama eso?", ops:["Alucinación: genera información falsa con apariencia de verdadera.","Un virus informático.","Un error de internet."], pista:"Es un invento que suena convincente.", ok:"Alucinación. Siempre se verifica en una fuente confiable."},
+        {k:"choice", txt:"¿Cuál de estas cosas NO conviene hacer al usar una IA en la escuela?", ops:["Cargar tu DNI, tu dirección o fotos de compañeros para que “te ayude”.","Pedirle que te explique un tema de otra manera.","Usarla para generar ideas y después revisarlas vos."], pista:"Pensá qué pasa con la información que escribís en el chat.", ok:"Los datos personales no se comparten, ni los propios ni los de otros."},
+        {k:"choice", txt:"Una IA de selección de personal elige casi siempre varones porque los datos históricos eran así. ¿Qué problema es?", ops:["Sesgo: repite las desigualdades que había en los datos con los que aprendió.","Falta de memoria del servidor.","Mala conexión a internet."], pista:"El problema viene de los datos.", ok:"Sesgo. Por eso importa de dónde salen los datos."},
+        {k:"choice", txt:"¿De dónde sale lo que “sabe” una IA?", ops:["De los datos con los que fue entrenada.","De razonar sola, sin información previa.","De preguntarle a un humano cada vez."], pista:"Antes de responder, alguien la entrenó.", ok:"Aprende patrones de enormes cantidades de datos."},
+        {k:"choice", txt:"Usás una IA para hacer la tarea. ¿Cuál es la forma honesta de trabajar?", ops:["Usarla para entender y generar ideas, revisar todo y aclarar en qué te ayudó.","Copiar y pegar la respuesta como si fuera tuya.","Pedirle que escriba con errores para que no se note."], pista:"Pensá qué aprendés vos en cada caso.", ok:"La IA es una herramienta: la responsabilidad sobre lo que entregás sigue siendo tuya."},
+        {k:"choice", txt:"Un deepfake es…", ops:["Un video o audio falso, generado con IA, que imita a una persona real.","Una película de ciencia ficción.","Un tipo de virus de computadora."], pista:"Se usa para hacer pasar por real algo que no lo es.", ok:"Por eso conviene desconfiar de videos sorprendentes sin fuente."},
+        {k:"choice", txt:"¿Por qué conviene revisar los datos que da una IA aunque suenen convincentes?", ops:["Porque predice el texto más probable, no verifica si es verdad.","Porque siempre miente a propósito.","Porque no tiene acceso a información."], pista:"No entiende como una persona: calcula lo más probable.", ok:"Suena segura hasta cuando se equivoca: por eso hay que verificar."}
+      ],
+      fijos:[
+        {k:"clasif", txt:"Clasificá estos casos de inteligencia artificial.", labels:["IA que ya existe","Todavía es ciencia ficción"], take:3,
+         pista:"Hoy todas las IA reales resuelven tareas concretas, aunque parezcan muy hábiles.",
+         ok:"Todas las IA de hoy son específicas. La IA general, con conciencia propia, todavía no existe.",
+         items:[
+           {t:"Una app que recomienda videos según lo que mirás.", a:0, why:"IA específica o “débil”: hace una sola tarea."},
+           {t:"Un asistente que escribe un texto a partir de tu pedido.", a:0, why:"IA generativa, también específica."},
+           {t:"Un robot con conciencia propia, que siente y decide su vida.", a:1, why:"Sería una IA general o fuerte: no existe."},
+           {t:"Un auto que se maneja solo en la autopista.", a:0, why:"Ya existe: combina sensores e IA específica."},
+           {t:"Una máquina que se enamora y arma sus propios planes de vida.", a:1, why:"Ciencia ficción."}
+         ]}
+      ]
+    }
+  ];
+
+  /* ============ preparación aleatoria ============ */
+  var JUEGO = null, CODIGO = "";
+  function prepararChoice(paso, rnd){
+    var correcta = paso.ops[0];
+    var ops = mezclar(paso.ops, rnd);
+    return {k:"choice", txt:paso.txt, pista:paso.pista, ok:paso.ok, ops:ops, ans:ops.indexOf(correcta)};
+  }
+  function prepararJuego(semilla, mezclarSalas){
+    var rnd = rng(semilla);
+    var orden = [];
+    for(var i=0;i<SALAS.length;i++) orden.push(i);
+    if(mezclarSalas) orden = mezclar(orden, rnd);
+
+    var salas = orden.map(function(idx){
+      var s = SALAS[idx], pasos = [];
+      if(s.pool && s.n) pasos = mezclar(s.pool, rnd).slice(0, s.n);
+      if(s.fijos) pasos = pasos.concat(s.fijos);
+      pasos = pasos.map(function(p){
+        if(p.k === "choice") return prepararChoice(p, rnd);
+        if(p.k === "clasif"){
+          var items = mezclar(p.items, rnd);
+          if(p.take) items = items.slice(0, p.take);
+          var c = {}; for(var kk in p) c[kk] = p[kk];
+          c.items = items; return c;
+        }
+        if(p.k === "codigo"){
+          var c2 = {k:"codigo", txt:p.txt, pista:p.pista, ok:p.ok, huecos:p.huecos.map(function(h){
+            return {ops:mezclar(h.ops, rnd), ans:h.ans};
+          })};
+          return c2;
+        }
+        return p;
+      });
+      return {titulo:s.titulo, intro:s.intro, palabra:s.palabra, cierre:s.cierre,
+              board:s.board, extra:s.extra, pasos:pasos};
+    });
+    JUEGO = {salas:salas,
+             comp:mezclar(COMPONENTES, rnd),
+             simb:mezclar(SIMBOLOS, rnd)};
+    CODIGO = salas.map(function(s){ return s.palabra.charAt(0); }).join("");
+  }
+
+  /* ============ estado ============ */
+  var est = {sala:0, paso:0, resueltas:[], segundos:TIEMPO, semilla:0, mezcla:false, ganado:false};
+  var TIMER = null, bloqueado = false;
+
+  function guardar(){ try{ localStorage.setItem("circuito-cerrado-2", JSON.stringify(est)); }catch(e){} }
+  function cargar(){
+    try{
+      var raw = localStorage.getItem("circuito-cerrado-2");
+      if(!raw) return null;
+      var d = JSON.parse(raw);
+      if(d && typeof d.sala === "number" && Array.isArray(d.resueltas) && d.semilla) return d;
+    }catch(e){}
+    return null;
+  }
+
+  function pintarReloj(){
+    var s = Math.max(0, est.segundos), m = Math.floor(s/60), r = s%60;
+    $("reloj").textContent = (m<10?"0":"")+m+":"+(r<10?"0":"")+r;
+    $("reloj").classList.toggle("rojo", s <= 300);
+  }
+  function arrancarReloj(){
+    if(TIMER) return;
+    TIMER = setInterval(function(){
+      if(est.segundos > 0){ est.segundos--; pintarReloj(); guardar(); }
+    }, 1000);
+  }
+  function pintarSlots(){
+    var h = "";
+    for(var i=0;i<JUEGO.salas.length;i++){
+      var ok = est.resueltas.indexOf(i) > -1;
+      h += '<div class="slot'+(ok?' ok':'')+'" title="'+(ok?JUEGO.salas[i].palabra:'Estación '+(i+1))+'">'+
+           (ok?CODIGO.charAt(i):'·')+'</div>';
+    }
+    $("slots").innerHTML = h;
+  }
+
+  var PANTALLAS = ["intro","sala","premio","final","ganaste"];
+  function mostrar(id){
+    PANTALLAS.forEach(function(p){ $(p).hidden = (p !== id); });
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+  function feedback(ok, texto){
+    var fb = $("fb");
+    fb.className = "fb on " + (ok?"ok":"no");
+    fb.innerHTML = (ok?"<b>¡Bien!</b> ":"<b>Todavía no.</b> ") + texto;
+  }
+  function limpiarFb(){ $("fb").className = "fb"; $("fb").innerHTML = ""; }
+
+  /* ============ render ============ */
+  function tablero(tipo){
+    var lista = tipo === "comp" ? JUEGO.comp : JUEGO.simb;
+    return '<div class="board">'+lista.map(function(p){
+      return '<button class="pieza" data-id="'+p.id+'" type="button">'+
+             '<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#'+p.s+'"/></svg>'+
+             (p.n ? '<span>'+p.n+'</span>' : '')+'</button>';
+    }).join("")+'</div>';
+  }
+  function codigoHTML(paso){
+    var txt = SKETCH;
+    for(var i=0;i<paso.huecos.length;i++){
+      var sel = '<select class="hueco" data-i="'+i+'" id="hueco'+i+'"><option value="">— elegir —</option>'+
+        paso.huecos[i].ops.map(function(o){ return '<option value="'+o+'">'+o+'</option>'; }).join("")+'</select>';
+      txt = txt.replace("@@"+i+"@@", sel);
+    }
+    return '<pre class="codigobox">'+txt+'</pre>'+
+      '<p style="margin-top:12px"><button class="btn cobre" id="comprobar" type="button">Comprobar el sketch</button></p>';
+  }
+
+  var escenaActual = null, hechas = [], selTerm = null;
+
+  function renderCablear(paso){
+    escenaActual = paso.escena === "semaforo" ? escenaSemaforo() : escenaUltrasonido();
+    hechas = []; selTerm = null;
+    var lista = escenaActual.req.map(function(r,i){
+      return '<div data-r="'+i+'"><b>·</b>'+r.t+'</div>';
+    }).join("");
+    $("zona").innerHTML = '<div class="escena">'+escenaActual.svg+'</div>'+
+      '<div class="lista" id="lista">'+lista+'</div>';
+    var svg = $("zona").querySelector("svg");
+    svg.addEventListener("pointermove", moverElastico);
+    svg.addEventListener("pointerleave", function(){ borrarElastico(); });
+  }
+  function puntoSVG(svg, ev){
+    var p = svg.createSVGPoint();
+    p.x = ev.clientX; p.y = ev.clientY;
+    var m = svg.getScreenCTM();
+    if(!m) return null;
+    return p.matrixTransform(m.inverse());
+  }
+  function borrarElastico(){
+    var e = document.getElementById("elastico");
+    if(e && e.parentNode) e.parentNode.removeChild(e);
+  }
+  function moverElastico(ev){
+    if(!selTerm) return;
+    var svg = ev.currentTarget, pt = puntoSVG(svg, ev);
+    if(!pt) return;
+    var t = svg.querySelector("#t-"+selTerm);
+    if(!t) return;
+    var e = document.getElementById("elastico");
+    if(!e){
+      e = document.createElementNS("http://www.w3.org/2000/svg","path");
+      e.setAttribute("id","elastico"); e.setAttribute("class","elastico");
+      svg.querySelector("#cables").appendChild(e);
+    }
+    e.setAttribute("d","M"+t.getAttribute("cx")+" "+t.getAttribute("cy")+"L"+pt.x.toFixed(1)+" "+pt.y.toFixed(1));
+  }
+  function trazarCable(svg, id1, id2, color){
+    var a = svg.querySelector("#t-"+id1), b = svg.querySelector("#t-"+id2);
+    var x1 = +a.getAttribute("cx"), y1 = +a.getAttribute("cy");
+    var x2 = +b.getAttribute("cx"), y2 = +b.getAttribute("cy");
+    var comba = Math.min(90, 30 + Math.abs(x2-x1)*0.25);
+    var p = document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("class","cable");
+    p.setAttribute("stroke", color);
+    p.setAttribute("d","M"+x1+" "+y1+"C"+x1+" "+(y1+comba)+" "+x2+" "+(y2+comba)+" "+x2+" "+y2);
+    svg.querySelector("#cables").appendChild(p);
+    a.classList.add("ok"); b.classList.add("ok");
+  }
+  function coincide(r, id1, id2){
+    var A = [].concat(r.a), B = [].concat(r.b);
+    return (A.indexOf(id1)>-1 && B.indexOf(id2)>-1) || (A.indexOf(id2)>-1 && B.indexOf(id1)>-1);
+  }
+
+  function renderSala(){
+    var sala = JUEGO.salas[est.sala], paso = sala.pasos[est.paso];
+    mostrar("sala");
+    $("salanum").textContent = (est.sala+1 < 10 ? "0" : "") + (est.sala+1);
+    $("salatitulo").textContent = sala.titulo;
+    $("salaintro").textContent = sala.intro;
+    if($("extra").getAttribute("data-sala") !== String(est.sala)){
+      $("extra").innerHTML = sala.extra || "";
+      $("extra").setAttribute("data-sala", String(est.sala));
+      var lamps = $("extra").querySelectorAll(".lamp");
+      for(var i=0;i<lamps.length;i++) lamps[i].classList.add("encendida");
+    }
+    $("paso").textContent = "Paso " + (est.paso+1) + " de " + sala.pasos.length;
+    $("consigna").textContent = paso.txt;
+    $("barra").style.width = (est.paso / sala.pasos.length * 100) + "%";
+    $("pista").textContent = paso.pista || "";
+    $("pista").className = "pistatxt";
+    $("btnpista").hidden = !paso.pista;
+    limpiarFb();
+
+    var z = $("zona");
+    if(paso.k === "pick"){
+      z.innerHTML = tablero(sala.board);
+    } else if(paso.k === "hot"){
+      z.innerHTML = '<div class="escena">'+placaPartes()+'</div>';
+    } else if(paso.k === "choice"){
+      z.innerHTML = '<div class="ops">'+paso.ops.map(function(o,i){
+        return '<button class="op" type="button" data-i="'+i+'"><b>'+"ABCD".charAt(i)+'</b><span>'+o+'</span></button>';
+      }).join("")+'</div>';
+    } else if(paso.k === "clasif"){
+      z.innerHTML = '<div class="clas">'+paso.items.map(function(it,i){
+        var bts = paso.labels.map(function(l,j){
+          return '<button class="btn sec" type="button" data-op="'+j+'">'+l+'</button>';
+        }).join(" ");
+        return '<div class="fila" data-i="'+i+'"><p>'+it.t+'</p><span class="acc">'+bts+'</span>'+
+               '<span class="tag">✓ '+paso.labels[it.a]+' — '+it.why+'</span></div>';
+      }).join("")+'</div>';
+    } else if(paso.k === "cablear"){
+      renderCablear(paso);
+    } else if(paso.k === "codigo"){
+      z.innerHTML = codigoHTML(paso);
+    }
+    bloqueado = false;
+    guardar();
+  }
+
+  function avanzarPaso(){
+    bloqueado = true;
+    var sala = JUEGO.salas[est.sala];
+    if(est.paso + 1 < sala.pasos.length){
+      est.paso++;
+      setTimeout(renderSala, 900);
+    } else {
+      est.paso = 0;
+      if(est.resueltas.indexOf(est.sala) < 0) est.resueltas.push(est.sala);
+      guardar(); pintarSlots();
+      setTimeout(function(){
+        $("premiotit").textContent = "Estación " + (est.sala+1) + " superada";
+        $("premiopal").innerHTML = '<em>' + sala.palabra.charAt(0) + '</em>' + sala.palabra.slice(1);
+        $("premiotxt").textContent = sala.cierre + " Anotá la inicial: " + sala.palabra.charAt(0) + ".";
+        $("siguiente").textContent = est.sala + 1 < JUEGO.salas.length ?
+          "Ir a la estación " + (est.sala+2) : "Ir a la puerta";
+        mostrar("premio");
+      }, 850);
+    }
+  }
+
+  /* ============ interacciones ============ */
+  $("zona").addEventListener("click", function(ev){
+    if(bloqueado) return;
+    var sala = JUEGO.salas[est.sala], paso = sala.pasos[est.paso];
+
+    if(paso.k === "pick" || paso.k === "hot"){
+      var el = ev.target.closest(paso.k === "pick" ? ".pieza" : ".hot");
+      if(!el) return;
+      var ok = el.getAttribute("data-id") === paso.ans;
+      el.classList.remove("mal","bien"); void el.getBoundingClientRect();
+      el.classList.add(ok ? "bien" : "mal");
+      if(ok){ feedback(true, paso.ok); avanzarPaso(); }
+      else { feedback(false, "Esa no es. Volvé a leer la consigna o pedí una pista."); }
+      return;
+    }
+
+    if(paso.k === "choice"){
+      var op = ev.target.closest(".op");
+      if(!op) return;
+      var i = +op.getAttribute("data-i");
+      op.classList.remove("mal","bien"); void op.getBoundingClientRect();
+      if(i === paso.ans){ op.classList.add("bien"); feedback(true, paso.ok); avanzarPaso(); }
+      else { op.classList.add("mal"); feedback(false, "Probá con otra opción."); }
+      return;
+    }
+
+    if(paso.k === "clasif"){
+      var b = ev.target.closest("[data-op]");
+      if(!b) return;
+      var fila = b.closest(".fila"), idx = +fila.getAttribute("data-i");
+      if(+b.getAttribute("data-op") === paso.items[idx].a){
+        fila.classList.remove("mal"); fila.classList.add("bien");
+        if($("zona").querySelectorAll(".fila:not(.bien)").length === 0){ feedback(true, paso.ok); avanzarPaso(); }
+        else limpiarFb();
+      } else {
+        fila.classList.remove("mal"); void fila.getBoundingClientRect(); fila.classList.add("mal");
+        feedback(false, "Ese no va ahí. Leelo de nuevo y fijate qué hace el sistema.");
+        setTimeout(function(){ fila.classList.remove("mal"); }, 500);
+      }
+      return;
+    }
+
+    if(paso.k === "cablear"){
+      var hit = ev.target.closest(".hit");
+      if(!hit) return;
+      var svg = $("zona").querySelector("svg");
+      var id = hit.getAttribute("data-t");
+      if(!selTerm){
+        selTerm = id;
+        svg.querySelector("#t-"+id).classList.add("sel");
+        limpiarFb();
+        return;
+      }
+      if(selTerm === id){
+        svg.querySelector("#t-"+id).classList.remove("sel");
+        selTerm = null; borrarElastico();
+        return;
+      }
+      var prev = selTerm, encontrado = -1;
+      for(var r=0;r<escenaActual.req.length;r++){
+        if(hechas.indexOf(r) < 0 && coincide(escenaActual.req[r], prev, id)){ encontrado = r; break; }
+      }
+      svg.querySelector("#t-"+prev).classList.remove("sel");
+      selTerm = null; borrarElastico();
+      if(encontrado > -1){
+        var req = escenaActual.req[encontrado];
+        trazarCable(svg, prev, id, req.c);
+        hechas.push(encontrado);
+        var fila2 = $("lista").querySelector('[data-r="'+encontrado+'"]');
+        fila2.className = "ok"; fila2.querySelector("b").textContent = "✓";
+        if(hechas.length === escenaActual.req.length){ feedback(true, paso.ok); avanzarPaso(); }
+        else { feedback(true, "Cable conectado. Faltan " + (escenaActual.req.length - hechas.length) + "."); }
+      } else {
+        var t2 = svg.querySelector("#t-"+id);
+        t2.classList.add("mal");
+        setTimeout(function(){ t2.classList.remove("mal"); }, 500);
+        feedback(false, "Ese cable no corresponde. Mirá la lista de conexiones pedidas.");
+      }
+      return;
+    }
+
+    if(paso.k === "codigo" && ev.target.id === "comprobar"){
+      var sels = $("zona").querySelectorAll(".hueco"), todo = true;
+      for(var s=0;s<sels.length;s++){
+        var bien = sels[s].value === paso.huecos[+sels[s].getAttribute("data-i")].ans;
+        sels[s].className = "hueco " + (bien ? "ok" : "no");
+        if(!bien) todo = false;
+      }
+      if(todo){ feedback(true, paso.ok); avanzarPaso(); }
+      else feedback(false, "Los huecos marcados en rojo no son correctos. Fijate qué espera cada instrucción.");
+    }
+  });
+
+  $("extra").addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-cir]");
+    if(!b) return;
+    var tipo = b.getAttribute("data-cir"), cont = $("cir-"+tipo);
+    var roto = cont.getAttribute("data-roto") === "1";
+    cont.setAttribute("data-roto", roto ? "0" : "1");
+    b.textContent = roto ? "Sacar L2" : "Volver a poner L2";
+    var lamps = cont.querySelectorAll(".lamp");
+    for(var i=0;i<lamps.length;i++){
+      var esL2 = lamps[i].getAttribute("data-l") === "L2";
+      var apagar = !roto && (tipo === "serie" || esL2);
+      lamps[i].classList.toggle("encendida", !apagar);
+    }
+    cont.classList.toggle("apagado", !roto && tipo === "serie");
+  });
+
+  $("btnpista").addEventListener("click", function(){
+    $("pista").classList.add("on");
+    this.hidden = true;
+  });
+
+  function nuevaPartida(){
+    est = {sala:0, paso:0, resueltas:[], segundos:TIEMPO,
+           semilla:Math.floor(Math.random()*1e9) + 1, mezcla:$("mezclar").checked, ganado:false};
+    prepararJuego(est.semilla, est.mezcla);
+    $("extra").setAttribute("data-sala","-");
+    pintarReloj(); pintarSlots(); arrancarReloj(); renderSala();
+  }
+  $("empezar").addEventListener("click", nuevaPartida);
+  $("seguir").addEventListener("click", function(){
+    arrancarReloj();
+    if(est.resueltas.length === JUEGO.salas.length) irAlFinal(); else renderSala();
+  });
+  $("siguiente").addEventListener("click", function(){
+    if(est.sala + 1 < JUEGO.salas.length){ est.sala++; est.paso = 0; guardar(); renderSala(); }
+    else irAlFinal();
+  });
+
+  function irAlFinal(){
+    var h = "";
+    for(var i=0;i<JUEGO.salas.length;i++) h += '<div title="'+JUEGO.salas[i].palabra+'">'+CODIGO.charAt(i)+"</div>";
+    $("codigo").innerHTML = h;
+    $("clave").value = "";
+    mostrar("final");
+    setTimeout(function(){ $("clave").focus(); }, 300);
+  }
+  function abrir(){
+    var v = ($("clave").value || "").trim().toUpperCase().replace(/\s/g,"");
+    if(v === CODIGO){
+      est.ganado = true; guardar();
+      if(TIMER){ clearInterval(TIMER); TIMER = null; }
+      var usados = TIEMPO - est.segundos, m = Math.floor(usados/60), s = usados%60;
+      $("tiempofinal").textContent = "Código correcto: " + CODIGO + ". Tardaste " + m + " min " +
+        (s<10?"0":"") + s + " s.";
+      mostrar("ganaste");
+    } else {
+      $("fbfinal").className = "fb on no";
+      $("fbfinal").innerHTML = "<b>BIT-3 dice que no.</b> Son las ocho iniciales, en el orden en que "+
+        "conseguiste las palabras. Pasá el mouse por los casilleros verdes de arriba para recordarlas.";
+    }
+  }
+  $("abrir").addEventListener("click", abrir);
+  $("clave").addEventListener("keydown", function(e){ if(e.key === "Enter") abrir(); });
+  $("reiniciar").addEventListener("click", function(){
+    if(TIMER){ clearInterval(TIMER); TIMER = null; }
+    est = {sala:0, paso:0, resueltas:[], segundos:TIEMPO, semilla:0, mezcla:false, ganado:false};
+    try{ localStorage.removeItem("circuito-cerrado-2"); }catch(e){}
+    prepararJuego(1, false); pintarReloj(); pintarSlots();
+    $("seguir").hidden = true; mostrar("intro");
+  });
+
+  /* ============ arranque ============ */
+  function iniciar(datos){
+    var prev = (datos && datos.est) || cargar();
+    if(prev && prev.semilla && !prev.ganado &&
+       (prev.resueltas.length || prev.sala > 0 || prev.segundos < TIEMPO)){
+      est = prev;
+      prepararJuego(est.semilla, est.mezcla);
+      $("mezclar").checked = !!est.mezcla;
+      $("seguir").hidden = false;
+    } else {
+      prepararJuego(Math.floor(Math.random()*1e9) + 1, false);
+    }
+    pintarReloj(); pintarSlots(); mostrar("intro");
+  }
+  if(window.claude && window.claude.hot){
+    window.claude.hot.snapshot(function(){ return {est:est}; });
+    window.claude.hot.ready ? window.claude.hot.ready(iniciar) : iniciar(window.claude.hot.data || {});
+  } else {
+    iniciar({});
+  }
+})();
+</script>
+
+</body>
+</html>
